@@ -21,6 +21,9 @@ const equipoRoutes = require('./equipo.routes');
 //Servicios
 const servicioRoutes = require('./servicio.routes');
 
+//Mantenimientos
+const mantenimientoEquipoRoutes = require('./mantenimientoEquipo.routes');
+
 
 
 //clientes
@@ -40,5 +43,8 @@ router.use('/equipos', equipoRoutes);
 
 //Servicios
 router.use('/servicios', servicioRoutes);
+
+//Mantenimientos
+router.use('/mantenimientos', mantenimientoEquipoRoutes);
 
 module.exports = router;
