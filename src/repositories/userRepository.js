@@ -22,6 +22,15 @@ class UserRepository {
       { where: { id_usuario: id } }
     );
   }
+
+  async findAllClients() {
+    return await User.findAll({
+      where: { 
+        id_rol: 2,
+        activo: true 
+      }
+    });
+  }
   
 }
 

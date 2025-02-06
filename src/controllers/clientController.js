@@ -51,6 +51,22 @@ class ClientController {
       res.status(500).json({ error: 'Error al desactivar' });
     }
   }
+
+  async getAll(req, res) {
+    try {
+      const clients = await userService.getAllClients();
+      // Excluir passwords
+      const clientsData = clients.map(client => {
+        const { password, ...userData } = client.toJSON();
+        return userData;
+      });
+      res.json(clientsData);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener clientes' });
+    }
+  }
+
+  
 }
 
 module.exports = new ClientController();

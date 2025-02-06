@@ -21,6 +21,10 @@ class UserService {
   async softDelete(id) {
     return await userRepository.softDelete(id);
   }
+
+  async getAllClients() {
+    return await userRepository.findAllClients();
+  }
   
 }
 
