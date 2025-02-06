@@ -15,6 +15,9 @@ const repartidorRoutes = require('./repartidor.routes');
 //configuraciones Usuario
 const configUsuarioRoutes = require('./configUsuario.routes');
 
+//Equipos
+const equipoRoutes = require('./equipo.routes');
+
 
 
 //clientes
@@ -28,5 +31,8 @@ router.use('/repartidores', repartidorRoutes);
 
 //configuraciones Usuario
 router.use('/config', configUsuarioRoutes);
+
+//Equipos
+router.use('/equipos', equipoRoutes);
 
 module.exports = router;
