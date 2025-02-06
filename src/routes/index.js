@@ -18,6 +18,9 @@ const configUsuarioRoutes = require('./configUsuario.routes');
 //Equipos
 const equipoRoutes = require('./equipo.routes');
 
+//Servicios
+const servicioRoutes = require('./servicio.routes');
+
 
 
 //clientes
@@ -34,5 +37,8 @@ router.use('/config', configUsuarioRoutes);
 
 //Equipos
 router.use('/equipos', equipoRoutes);
+
+//Servicios
+router.use('/servicios', servicioRoutes);
 
 module.exports = router;
