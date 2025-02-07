@@ -24,6 +24,9 @@ const servicioRoutes = require('./servicio.routes');
 //Mantenimientos
 const mantenimientoEquipoRoutes = require('./mantenimientoEquipo.routes');
 
+//Asignacion de pedidos 
+const pedidoRoutes = require('./pedido.routes');
+
 
 
 //clientes
@@ -46,5 +49,8 @@ router.use('/servicios', servicioRoutes);
 
 //Mantenimientos
 router.use('/mantenimientos', mantenimientoEquipoRoutes);
+
+//Asignacion de pedidos
+router.use('/pedidos', pedidoRoutes);
 
 module.exports = router;
