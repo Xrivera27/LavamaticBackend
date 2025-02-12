@@ -4,6 +4,7 @@ const sequelize = require('../config/database');
 const Estado = require('./estados');
 const Usuario = require('./User');
 
+
 const Pedido = sequelize.define('pedidos', {
   id_pedido: {
     type: DataTypes.INTEGER,
@@ -60,9 +61,8 @@ const Pedido = sequelize.define('pedidos', {
   timestamps: false
 });
 
-// Asociaciones
+// Ponemos todas las asociaciones aquí
 Pedido.belongsTo(Estado, { foreignKey: 'id_estado', as: 'estado' });
 Pedido.belongsTo(Usuario, { foreignKey: 'id_cliente', as: 'cliente' });
 Pedido.belongsTo(Usuario, { foreignKey: 'id_repartidor', as: 'repartidor' });
-
 module.exports = Pedido;

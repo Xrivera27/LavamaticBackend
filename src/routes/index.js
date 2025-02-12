@@ -28,6 +28,14 @@ const mantenimientoEquipoRoutes = require('./mantenimientoEquipo.routes');
 const pedidoRoutes = require('./pedido.routes');
 
 
+//Clientes Pedidos
+const servicioClienteRoutes = require('./servicioCliente.routes');
+
+//repartidores
+const repartidores = require('./repartidores.routes');
+
+
+
 
 //clientes
 router.use('/clients', clientsRoutes);
@@ -52,5 +60,13 @@ router.use('/mantenimientos', mantenimientoEquipoRoutes);
 
 //Asignacion de pedidos
 router.use('/pedidos', pedidoRoutes);
+
+//Clientes Pedidos
+router.use('/cliente', servicioClienteRoutes);
+
+//repartidores
+router.use('/repartidor', repartidores);
+
+
 
 module.exports = router;

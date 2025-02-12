@@ -21,4 +21,6 @@ const Estado = sequelize.define('estados', {
   timestamps: false
 });
 
+
+
 module.exports = Estado;

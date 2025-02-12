@@ -87,7 +87,7 @@ class PedidoRepository {
     if (pedido && pedido.id_estado === 1) {
       return await pedido.update({
         id_repartidor,
-        id_estado: 2, // En camino
+        id_estado: 1, // En camino
         fecha_actualizacion: new Date()
       });
     }

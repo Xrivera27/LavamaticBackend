@@ -1,12 +1,13 @@
-// src/models/horario.js
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Horario = sequelize.define('horarios', {
   id_horario: {
+    autoIncrement: true,
     type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
+    allowNull: false,
+    primaryKey: true
   },
   hora_inicio: {
     type: DataTypes.TIME,
