@@ -6,6 +6,11 @@ class UserService {
     return await userRepository.findByEmail(email);
   }
 
+  // Método agregado para obtener usuario por ID
+  async getUserById(id) {
+    return await userRepository.findById(id);
+  }
+
   async createUser(userData) {
     return await userRepository.create(userData);
   }
@@ -25,7 +30,6 @@ class UserService {
   async getAllClients() {
     return await userRepository.findAllClients();
   }
-  
 }
 
 module.exports = new UserService();

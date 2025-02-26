@@ -1,4 +1,3 @@
-
 const User = require('../models/User');
 
 class UserRepository {
@@ -31,9 +30,13 @@ class UserRepository {
       }
     });
   }
-  
+
+  // Método agregado para encontrar usuario por ID
+  async findById(id) {
+    return await User.findByPk(id, {
+      attributes: ['id_usuario', 'nombre', 'email', 'telefono', 'direccion', 'id_rol', 'activo']
+    });
+  }
 }
-
-
 
 module.exports = new UserRepository();

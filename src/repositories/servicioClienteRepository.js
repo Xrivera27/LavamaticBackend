@@ -3,9 +3,9 @@ const Horario = require('../models/Horario');
 const ReservaEquipo = require('../models/reservaEquipo');
 const Equipo = require('../models/equipos');
 const { Op } = require('sequelize');
-const Pedido = require('../models/pedidos');          // Añadido
-const PedidoServicio = require('../models/pedidoServicio'); // Añadido
-const Estado = require('../models/estados');           // Añadido
+const Pedido = require('../models/pedidos');
+const PedidoServicio = require('../models/pedidoServicio');
+const Estado = require('../models/estados');
 
 class ServicioClienteRepository {
  async findAllServicios() {
@@ -24,6 +24,22 @@ class ServicioClienteRepository {
    });
  }
 
+ // Nuevo método agregado
+ async findHorarioById(id) {
+   try {
+     const horario = await Horario.findByPk(id);
+     
+     if (!horario) {
+       throw new Error('Horario no encontrado');
+     }
+     
+     return horario;
+   } catch (error) {
+     console.error('Error al obtener horario por ID:', error);
+     throw error;
+   }
+ }
+
  async findAllHorarios() {
    return await Horario.findAll({
      order: [['hora_inicio', 'ASC']]
@@ -37,7 +53,6 @@ class ServicioClienteRepository {
      throw new Error('Equipo no encontrado');
    }
 
-   // Obtener las reservas para este equipo en la fecha y horario específicos
    const reservas = await ReservaEquipo.findAll({
      where: {
        id_equipo: id_equipo,
@@ -46,10 +61,8 @@ class ServicioClienteRepository {
      }
    });
 
-   // Calcular la capacidad total usada en ese horario
    const capacidadUsada = reservas.reduce((sum, reserva) => sum + reserva.cantidad, 0);
 
-   // Verificar si hay capacidad disponible
    const disponible = capacidadUsada < equipo.cantidad_total;
 
    return {
@@ -61,17 +74,14 @@ class ServicioClienteRepository {
  }
 
  async obtenerDisponibilidadHorarios(fecha) {
-   // Obtener todos los horarios
    const horarios = await Horario.findAll({
      order: [['hora_inicio', 'ASC']]
    });
 
-   // Obtener todos los equipos
    const equipos = await Equipo.findAll();
 
    const disponibilidad = [];
 
-   // Para cada horario, verificar la disponibilidad
    for (const horario of horarios) {
      const reservasPorHorario = await ReservaEquipo.findAll({
        where: {
@@ -80,7 +90,6 @@ class ServicioClienteRepository {
        }
      });
 
-     // Verificar si hay capacidad disponible en algún equipo
      let horarioDisponible = false;
      for (const equipo of equipos) {
        const reservasEquipo = reservasPorHorario.filter(r => r.id_equipo === equipo.id_equipo);
@@ -134,9 +143,7 @@ class ServicioClienteRepository {
     ],
     order: [['fecha_creacion', 'DESC']]
   });
-}
-
-
+ }
 }
 
 module.exports = new ServicioClienteRepository();

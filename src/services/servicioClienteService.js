@@ -1,4 +1,3 @@
-// src/services/servicioClienteService.js
 const servicioClienteRepository = require('../repositories/servicioClienteRepository');
 
 class ServicioClienteService {
@@ -8,6 +7,11 @@ class ServicioClienteService {
 
   async getServicioById(id) {
     return await servicioClienteRepository.findServicioById(id);
+  }
+
+  // Nuevo método
+  async getHorarioById(id) {
+    return await servicioClienteRepository.findHorarioById(id);
   }
 
   async getHorariosDisponibles() {

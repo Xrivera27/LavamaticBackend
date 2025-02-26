@@ -15,12 +15,8 @@ router.get('/servicios/:id', servicioClienteController.getServicioDetalle);
 router.get('/horarios', servicioClienteController.getHorarios);
 router.post('/disponibilidad', servicioClienteController.verificarDisponibilidad);
 
-// Ruta para crear pedido
+// Rutas para pedidos
 router.post('/pedidos', servicioClienteController.crearPedido);
-
-
-//Historial de Pedidos
-
-router.get('/pedidos/historial', servicioClienteController.getHistorialPedidos);
+router.get('/pedidos', servicioClienteController.getHistorialPedidos);
 
 module.exports = router;
