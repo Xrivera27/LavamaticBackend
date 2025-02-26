@@ -1,8 +1,9 @@
-
 const { Op } = require('sequelize');
 const Pedido = require('../models/pedidos');
 const Usuario = require('../models/User');
 const Estado = require('../models/estados');
+const PedidoServicio = require('../models/pedidoServicio');
+const Servicio = require('../models/Servicio');
 
 class PedidoRepository {
   async findAll(filtros = {}) {
@@ -115,6 +116,32 @@ class PedidoRepository {
       });
     }
     return null;
+  }
+
+  async findServiciosByPedido(id_pedido) {
+    try {
+      const pedidoServicios = await PedidoServicio.findAll({
+        where: { id_pedido },
+        include: [
+          {
+            model: Servicio,
+            as: 'servicio',
+            attributes: ['id_servicio', 'nombre', 'precio']
+          }
+        ]
+      });
+
+      // Transformar los resultados
+      return pedidoServicios.map(ps => ({
+        id_servicio: ps.servicio.id_servicio,
+        nombre: ps.servicio.nombre,
+        cantidad: ps.cantidad,
+        precio: ps.servicio.precio
+      }));
+    } catch (error) {
+      console.error('Error al buscar servicios del pedido:', error);
+      throw error;
+    }
   }
 }
 

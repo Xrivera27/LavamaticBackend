@@ -115,6 +115,60 @@ class EmailService {
       throw error;
     }
   }
+
+  async sendRepartidorAsignado(email, pedidoDetalles) {
+    try {
+      if (!process.env.SENDGRID_API_KEY) {
+        throw new Error('SendGrid API key no configurada');
+      }
+  
+      // Formatear servicios en una lista HTML
+      const serviciosHTML = pedidoDetalles.servicios.map(servicio => 
+        `<li>${servicio.nombre} - Cantidad: ${servicio.cantidad}</li>`
+      ).join('');
+  
+      const msg = {
+        to: email,
+        from: process.env.EMAIL_FROM || 'gerrivera244@gmail.com',
+        subject: `Repartidor Asignado - Pedido #${pedidoDetalles.id}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>¡Tu pedido tiene repartidor asignado!</h2>
+            
+            <h3>Detalles del Pedido</h3>
+            <p><strong>Número de Pedido:</strong> ${pedidoDetalles.id}</p>
+            
+            <h4>Información del Repartidor:</h4>
+            <p><strong>Nombre:</strong> ${pedidoDetalles.nombreRepartidor}</p>
+            <p><strong>Teléfono:</strong> ${pedidoDetalles.telefonoRepartidor}</p>
+            
+            <h4>Servicios:</h4>
+            <ul>
+              ${serviciosHTML}
+            </ul>
+            
+            <h4>Direcciones:</h4>
+            <p><strong>Recogida:</strong> ${pedidoDetalles.direccionRecogida}</p>
+            <p><strong>Entrega:</strong> ${pedidoDetalles.direccionEntrega}</p>
+            
+            <p>Tu repartidor está listo para atender tu pedido.</p>
+            <br>
+            <p>Saludos,<br>Equipo de Lavamatic</p>
+          </div>
+        `
+      };
+      
+      console.log('Enviando email de asignación de repartidor...', { to: email });
+      const response = await sgMail.send(msg);
+      console.log('Email de asignación de repartidor enviado:', response);
+      return response;
+    } catch (error) {
+      console.error('Error SendGrid (Asignación de Repartidor):', error.response?.body || error.message);
+      throw error;
+    }
+  }
+
+
 }
 
 module.exports = new EmailService();

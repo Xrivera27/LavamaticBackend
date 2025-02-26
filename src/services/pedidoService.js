@@ -1,4 +1,3 @@
-
 const pedidoRepository = require('../repositories/pedidoRepository');
 
 class PedidoService {
@@ -24,6 +23,16 @@ class PedidoService {
 
   async cambiarEstado(id_pedido, id_estado) {
     return await pedidoRepository.cambiarEstado(id_pedido, id_estado);
+  }
+
+  // Nuevo método
+  async getServiciosPedido(id_pedido) {
+    try {
+      return await pedidoRepository.findServiciosByPedido(id_pedido);
+    } catch (error) {
+      console.error('Error al obtener servicios del pedido:', error);
+      throw error;
+    }
   }
 }
 
