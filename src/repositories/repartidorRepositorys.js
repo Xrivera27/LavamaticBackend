@@ -4,6 +4,7 @@ const PedidoServicio = require('../models/pedidoServicio');
 const Servicio = require('../models/Servicio');
 const Estado = require('../models/estados');
 const Repartidor = require('../models/repartidores');
+const Usuario = require('../models/User');  // Asegúrate de importar el modelo de Usuario
 const { Op } = require('sequelize');
 
 class RepartidorRepository {
@@ -28,6 +29,11 @@ class RepartidorRepository {
      },
      include: [
        {
+         model: Usuario,  // Incluir modelo de Usuario
+         as: 'cliente',   // Usar el alias definido en el modelo
+         attributes: ['nombre']  // Solo traer el nombre del cliente
+       },
+       {
          model: Estado,
          as: 'estado',
          attributes: ['nombre_estado']
@@ -51,28 +57,33 @@ class RepartidorRepository {
  }
 
  async findPedidoById(id_pedido) {
-   return await Pedido.findOne({
-     where: { id_pedido },
-     include: [
-       {
-         model: PedidoServicio,
-         as: 'servicios',
-         include: [
-           {
-             model: Servicio,
-             as: 'servicio',
-             attributes: ['nombre', 'precio']
-           }
-         ]
-       },
-       {
-         model: Estado,
-         as: 'estado',
-         attributes: ['nombre_estado']
-       }
-     ]
-   });
- }
+  return await Pedido.findOne({
+    where: { id_pedido },
+    include: [
+      {
+        model: Usuario,  // Incluir modelo de Usuario
+        as: 'cliente',   
+        attributes: ['nombre', 'telefono']  // Agregar atributos adicionales
+      },
+      {
+        model: PedidoServicio,
+        as: 'servicios',
+        include: [
+          {
+            model: Servicio,
+            as: 'servicio',
+            attributes: ['nombre', 'precio']
+          }
+        ]
+      },
+      {
+        model: Estado,
+        as: 'estado',
+        attributes: ['nombre_estado']
+      }
+    ]
+  });
+}
 
  async actualizarEstadoPedido(id_pedido, nuevo_estado, id_usuario) {
     try {
@@ -128,6 +139,11 @@ class RepartidorRepository {
         id_estado: 3  // Estado entregado
       },
       include: [
+        {
+          model: Usuario,  // Incluir modelo de Usuario
+          as: 'cliente',   // Usar el alias definido en el modelo
+          attributes: ['nombre']  // Solo traer el nombre del cliente
+        },
         {
           model: PedidoServicio,
           as: 'servicios',
