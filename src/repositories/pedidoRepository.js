@@ -97,8 +97,8 @@ class PedidoRepository {
 
   async volverAEspera(id_pedido) {
     const pedido = await Pedido.findByPk(id_pedido);
-    // En lugar de verificar el estado, verificar si tiene repartidor asignado
-    if (pedido && pedido.id_repartidor !== null) {
+    // Verificar si el pedido existe y si está en un estado diferente a "En Espera"
+    if (pedido && (pedido.id_repartidor !== null || pedido.id_estado !== 1)) {
       return await pedido.update({
         id_repartidor: null,
         id_estado: 1, // En espera

@@ -168,6 +168,57 @@ class EmailService {
     }
   }
 
+  async sendPedidoListo(email, pedidoDetalles) {
+    try {
+      if (!process.env.SENDGRID_API_KEY) {
+        throw new Error('SendGrid API key no configurada');
+      }
+  
+      // Formatear servicios en una lista HTML si existen
+      const serviciosHTML = pedidoDetalles.servicios && pedidoDetalles.servicios.length 
+        ? pedidoDetalles.servicios.map(servicio => 
+            `<li>${servicio.nombre} - Cantidad: ${servicio.cantidad}</li>`
+          ).join('')
+        : '<li>No hay detalles disponibles</li>';
+  
+      const msg = {
+        to: email,
+        from: process.env.EMAIL_FROM || 'gerrivera244@gmail.com',
+        subject: `¡Tu pedido #${pedidoDetalles.id} está listo para recoger! - Lavamatic`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>¡Tu pedido está listo para recoger!</h2>
+            
+            <h3>Detalles del Pedido</h3>
+            <p><strong>Número de Pedido:</strong> ${pedidoDetalles.id}</p>
+            
+            <h4>Servicios:</h4>
+            <ul>
+              ${serviciosHTML}
+            </ul>
+            
+            <h4>Dirección de recogida:</h4>
+            <p>${'Nuestra tienda principal'}</p>
+            
+            <p>Puedes pasar a recoger tu pedido en nuestro horario de atención.</p>
+            <p>Por favor trae el número de pedido o una identificación para recogerlo.</p>
+            <br>
+            <p>¡Gracias por confiar en nosotros!</p>
+            <p>Saludos,<br>Equipo de Lavamatic</p>
+          </div>
+        `
+      };
+      
+      console.log('Enviando email de pedido listo para recoger...', { to: email });
+      const response = await sgMail.send(msg);
+      console.log('Email de pedido listo para recoger enviado:', response);
+      return response;
+    } catch (error) {
+      console.error('Error SendGrid (Pedido listo para recoger):', error.response?.body || error.message);
+      throw error;
+    }
+  }
+
 
 }
 

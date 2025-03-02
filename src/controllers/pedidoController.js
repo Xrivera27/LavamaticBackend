@@ -113,25 +113,56 @@ async volverAEspera(req, res) {
   }
 }
 
-  async cambiarEstado(req, res) {
-    try {
-      const { id_pedido } = req.params;
-      const { id_estado } = req.body;
+async cambiarEstado(req, res) {
+  try {
+    const { id_pedido } = req.params;
+    const { id_estado } = req.body;
 
-      if (!id_estado) {
-        return res.status(400).json({ error: 'Estado requerido' });
-      }
-
-      const pedido = await pedidoService.cambiarEstado(id_pedido, id_estado);
-      if (!pedido) {
-        return res.status(404).json({ error: 'Pedido no encontrado' });
-      }
-
-      res.json({ message: 'Estado actualizado correctamente', pedido });
-    } catch (error) {
-      res.status(500).json({ error: 'Error al cambiar estado' });
+    if (!id_estado) {
+      return res.status(400).json({ error: 'Estado requerido' });
     }
+
+    const pedido = await pedidoService.cambiarEstado(id_pedido, id_estado);
+    if (!pedido) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    // Si el nuevo estado es "Listo para recoger" (id 4), enviar correo de notificación
+    if (id_estado === 4) {
+      try {
+        // Obtener información del cliente
+        const cliente = await userService.getUserById(pedido.id_cliente);
+        
+        if (cliente && cliente.email) {
+          // Obtener los servicios del pedido
+          const servicios = await pedidoService.getServiciosPedido(id_pedido);
+          
+          // Preparar detalles para el correo
+          const pedidoDetalles = {
+            id: pedido.id_pedido,
+            servicios: servicios,
+            direccionRecogida: pedido.direccion_recogida || 'Nuestra tienda principal'
+          };
+          
+          // Enviar correo de notificación (en segundo plano)
+          await emailService.sendPedidoListo(cliente.email, pedidoDetalles);
+        } else {
+          console.warn(`No se encontró email para el cliente del pedido ${id_pedido}`);
+        }
+      } catch (emailError) {
+        console.error('Error al enviar correo de pedido listo:', emailError);
+        // Continuamos con el flujo normal a pesar del error en el correo
+      }
+    }
+
+    res.json({ message: 'Estado actualizado correctamente', pedido });
+  } catch (error) {
+    console.error('Error al cambiar estado:', error);
+    res.status(500).json({ error: 'Error al cambiar estado' });
   }
+}
+
+
 }
 
 module.exports = new PedidoController();
