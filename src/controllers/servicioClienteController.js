@@ -64,21 +64,32 @@ class ServicioClienteController {
    */
   async verificarDisponibilidad(req, res) {
     try {
-      const { id_equipo, fecha, id_horario } = req.body;
+      const { id_servicio, fecha, id_horario } = req.body;
       
       // Validaciones
-      if (!id_equipo || !fecha || !id_horario) {
+      if (!id_servicio || !fecha || !id_horario) {
         return res.status(400).json({ 
-          error: 'id_equipo, fecha y id_horario son requeridos' 
+          error: 'id_servicio, fecha y id_horario son requeridos' 
         });
       }
-
+  
+      // Obtenemos el servicio para conseguir el id_equipo
+      const servicio = await servicioClienteService.getServicioById(id_servicio);
+      
+      if (!servicio) {
+        return res.status(404).json({ error: 'Servicio no encontrado' });
+      }
+      
+      if (!servicio.id_equipo) {
+        return res.status(400).json({ error: 'El servicio no tiene un equipo asignado' });
+      }
+  
       const disponibilidad = await servicioClienteService.verificarDisponibilidad(
-        id_equipo,
+        servicio.id_equipo,
         fecha,
         id_horario
       );
-
+  
       res.json(disponibilidad);
     } catch (error) {
       console.error('Error al verificar disponibilidad:', error);

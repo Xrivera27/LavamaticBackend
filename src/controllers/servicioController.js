@@ -1,4 +1,3 @@
-
 const servicioService = require('../services/servicioService');
 
 class ServicioController {
@@ -7,6 +6,7 @@ class ServicioController {
       const servicios = await servicioService.getAllServicios();
       res.json(servicios);
     } catch (error) {
+      console.error("Error al obtener servicios:", error);
       res.status(500).json({ error: 'Error al obtener servicios' });
     }
   }
@@ -19,17 +19,28 @@ class ServicioController {
       }
       res.json(servicio);
     } catch (error) {
+      console.error("Error al obtener servicio:", error);
       res.status(500).json({ error: 'Error al obtener servicio' });
     }
   }
 
   async create(req, res) {
     try {
-      const { nombre, descripcion, precio, tiempo_estimado, categoria } = req.body;
+      // Agregar id_equipo a la desestructuración
+      const { nombre, descripcion, precio, tiempo_estimado, categoria, id_equipo } = req.body;
+      
+      console.log("Datos recibidos para crear servicio:", req.body);
       
       if (!nombre || !precio || !tiempo_estimado) {
         return res.status(400).json({ 
           error: 'Nombre, precio y tiempo estimado son requeridos' 
+        });
+      }
+
+      // Validar id_equipo (opcional: podría ser obligatorio si lo prefieres)
+      if (!id_equipo) {
+        return res.status(400).json({ 
+          error: 'Se requiere seleccionar un equipo' 
         });
       }
 
@@ -38,11 +49,13 @@ class ServicioController {
         descripcion,
         precio,
         tiempo_estimado,
-        categoria
+        categoria,
+        id_equipo: parseInt(id_equipo) // Convertir a número si viene como string
       });
 
       res.status(201).json(servicio);
     } catch (error) {
+      console.error("Error al crear servicio:", error);
       res.status(500).json({ error: 'Error al crear servicio' });
     }
   }
@@ -50,6 +63,14 @@ class ServicioController {
   async update(req, res) {
     try {
       const id = req.params.id;
+      
+      // Convertir id_equipo a número si existe
+      if (req.body.id_equipo) {
+        req.body.id_equipo = parseInt(req.body.id_equipo);
+      }
+      
+      console.log("Datos para actualizar servicio:", req.body);
+      
       const servicio = await servicioService.updateServicio(id, req.body);
       
       if (!servicio) {
@@ -58,6 +79,7 @@ class ServicioController {
 
       res.json(servicio);
     } catch (error) {
+      console.error("Error al actualizar servicio:", error);
       res.status(500).json({ error: 'Error al actualizar servicio' });
     }
   }
@@ -70,6 +92,7 @@ class ServicioController {
       }
       res.json({ message: 'Servicio desactivado correctamente' });
     } catch (error) {
+      console.error("Error al desactivar servicio:", error);
       res.status(500).json({ error: 'Error al desactivar servicio' });
     }
   }

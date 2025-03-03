@@ -1,4 +1,4 @@
-
+// src/services/equipoService.js
 const equipoRepository = require('../repositories/equipoRepository');
 
 class EquipoService {
@@ -18,8 +18,15 @@ class EquipoService {
     return await equipoRepository.update(id, equipoData);
   }
 
-  async removeEquipo(id) {
-    return await equipoRepository.decrementTotal(id);
+  async removeEquipo(id, cantidad) {
+    // Si la cantidad no se especifica o es inválida, usamos 1 como valor predeterminado
+    const cantidadToRemove = cantidad && !isNaN(parseInt(cantidad)) ? parseInt(cantidad) : 1;
+    
+    return await equipoRepository.decrementTotal(id, cantidadToRemove);
+  }
+  
+  async deleteEquipoComplete(id) {
+    return await equipoRepository.deleteComplete(id);
   }
 }
 

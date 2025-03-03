@@ -1,6 +1,7 @@
 // src/models/servicio.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Equipo = require('./equipos');
 
 const Servicio = sequelize.define('servicios', {
   id_servicio: {
@@ -29,6 +30,14 @@ const Servicio = sequelize.define('servicios', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  id_equipo: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'equipos',
+      key: 'id_equipo'
+    }
+  },
   activo: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -38,5 +47,8 @@ const Servicio = sequelize.define('servicios', {
   tableName: 'servicios',
   timestamps: false
 });
+
+// Definir la relación con equipos
+Servicio.belongsTo(Equipo, { foreignKey: 'id_equipo', as: 'equipo' });
 
 module.exports = Servicio;

@@ -1,12 +1,20 @@
 // src/repositories/servicioRepository.js
 const Servicio = require('../models/servicios');
+const Equipo = require('../models/equipos');
 
 class ServicioRepository {
   async findAll() {
     return await Servicio.findAll({
       where: {
         activo: true
-      }
+      },
+      include: [
+        {
+          model: Equipo,
+          as: 'equipo',
+          attributes: ['id_equipo', 'nombre']
+        }
+      ]
     });
   }
 
@@ -15,7 +23,14 @@ class ServicioRepository {
       where: {
         id_servicio: id,
         activo: true
-      }
+      },
+      include: [
+        {
+          model: Equipo,
+          as: 'equipo',
+          attributes: ['id_equipo', 'nombre']
+        }
+      ]
     });
   }
 
