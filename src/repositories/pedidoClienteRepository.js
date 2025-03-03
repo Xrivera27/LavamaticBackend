@@ -176,6 +176,22 @@ class PedidoClienteRepository {
 
    return false;
  }
+ async actualizarPedido(id_pedido, datos) {
+  try {
+    const pedido = await Pedido.findByPk(id_pedido);
+    
+    if (!pedido) {
+      throw new Error('Pedido no encontrado');
+    }
+    
+    await pedido.update(datos);
+    
+    // Devolver el pedido actualizado
+    return await this.findById(id_pedido);
+  } catch (error) {
+    throw error;
+  }
+}
 }
 
 module.exports = new PedidoClienteRepository();

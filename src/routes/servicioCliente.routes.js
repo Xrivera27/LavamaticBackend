@@ -18,5 +18,6 @@ router.post('/disponibilidad', servicioClienteController.verificarDisponibilidad
 // Rutas para pedidos
 router.post('/pedidos', servicioClienteController.crearPedido);
 router.get('/pedidos', servicioClienteController.getHistorialPedidos);
+router.put('/pedidos/:id/cancelar', servicioClienteController.cancelarPedido);
 
 module.exports = router;

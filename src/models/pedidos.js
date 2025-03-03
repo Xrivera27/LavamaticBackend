@@ -3,7 +3,9 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Estado = require('./estados');
 const Usuario = require('./User');
-
+const PedidoServicio = require('./pedidoServicio');
+const PedidoEquipo = require('./pedidoEquipo');
+const ReservaEquipo = require('./reservaEquipo');
 
 const Pedido = sequelize.define('pedidos', {
   id_pedido: {
@@ -55,14 +57,24 @@ const Pedido = sequelize.define('pedidos', {
   fecha_actualizacion: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
+  },
+  activo: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }
 }, {
   tableName: 'pedidos',
   timestamps: false
 });
 
-// Ponemos todas las asociaciones aquí
+// Asociaciones existentes
 Pedido.belongsTo(Estado, { foreignKey: 'id_estado', as: 'estado' });
 Pedido.belongsTo(Usuario, { foreignKey: 'id_cliente', as: 'cliente' });
 Pedido.belongsTo(Usuario, { foreignKey: 'id_repartidor', as: 'repartidor' });
+
+// Nuevas asociaciones
+Pedido.hasMany(PedidoServicio, { foreignKey: 'id_pedido', as: 'servicios' });
+Pedido.hasMany(PedidoEquipo, { foreignKey: 'id_pedido', as: 'equipos' });
+Pedido.hasMany(ReservaEquipo, { foreignKey: 'id_pedido', as: 'reservas' });
+
 module.exports = Pedido;
