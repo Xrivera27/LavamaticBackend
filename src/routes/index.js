@@ -34,6 +34,9 @@ const servicioClienteRoutes = require('./servicioCliente.routes');
 //repartidores
 const repartidores = require('./repartidores.routes');
 
+//Dashboard
+const dashboardRoutes = require('./dashboard.routes');
+
 
 
 
@@ -66,6 +69,9 @@ router.use('/cliente', servicioClienteRoutes);
 
 //repartidores
 router.use('/repartidor', repartidores);
+
+//Dashboard
+router.use('/dashboard', dashboardRoutes);
 
 
 
