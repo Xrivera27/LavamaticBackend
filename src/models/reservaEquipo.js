@@ -3,7 +3,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Pedido = require('./pedidos');
 const Equipo = require('./equipos');
-const Horario = require('./horario');
+const Horario = require('./Horario');
 
 const ReservaEquipo = sequelize.define('reservas_equipos', {
   id_reserva: {
