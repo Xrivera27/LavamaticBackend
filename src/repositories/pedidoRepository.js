@@ -4,6 +4,7 @@ const Usuario = require('../models/User');
 const Estado = require('../models/estados');
 const PedidoServicio = require('../models/pedidoServicio');
 const Servicio = require('../models/Servicio');
+const PedidoEquipo = require('../models/pedidos_equipos'); // Importación del modelo corregido
 
 class PedidoRepository {
   async findAll(filtros = {}) {
@@ -117,6 +118,51 @@ class PedidoRepository {
       });
     }
     return null;
+  }
+
+  // Nuevo método para buscar pedidos activos por equipo
+  async findActivosByEquipoId(id_equipo) {
+    try {
+      // Buscar en la tabla pedidos_equipos todos los registros con este id_equipo
+      const pedidosEquipos = await PedidoEquipo.findAll({
+        where: { id_equipo },
+        attributes: ['id_pedido']
+      });
+      
+      // Si no hay registros, retornar array vacío
+      if (!pedidosEquipos || pedidosEquipos.length === 0) {
+        return [];
+      }
+      
+      // Extraer los IDs de pedidos
+      const pedidoIds = pedidosEquipos.map(pe => pe.id_pedido);
+      
+      // Buscar pedidos activos (estados 1 o 2) de la lista de IDs encontrados
+      const pedidosActivos = await Pedido.findAll({
+        where: {
+          id_pedido: {
+            [Op.in]: pedidoIds
+          },
+          id_estado: [1, 2] // Estados activos (pendiente o en proceso)
+        },
+        include: [
+          {
+            model: Usuario,
+            as: 'cliente',
+            attributes: ['nombre', 'email', 'telefono']
+          },
+          {
+            model: Estado,
+            as: 'estado'
+          }
+        ]
+      });
+      
+      return pedidosActivos;
+    } catch (error) {
+      console.error('Error al buscar pedidos activos por equipo:', error);
+      throw error;
+    }
   }
 
   async findServiciosByPedido(id_pedido) {

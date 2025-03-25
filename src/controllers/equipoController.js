@@ -94,8 +94,8 @@ class EquipoController {
       });
       
     } catch (error) {
-      console.error('Error al eliminar equipo:', error);
-      res.status(500).json({ error: 'Error al eliminar equipo' });
+      console.error( `Equipo en uso por pedidos activos.`, error);
+      res.status(500).json({ error:  `Equipo en uso por pedidos activos.` });
     }
   }
 }
