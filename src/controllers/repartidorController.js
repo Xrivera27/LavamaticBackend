@@ -2,6 +2,7 @@
 const bcrypt = require('bcrypt');
 const repartidorService = require('../services/repartidorService');
 const userService = require('../services/userService');
+const pedidoRepository = require('../repositories/pedidoRepository');
 
 class RepartidorController {
  async create(req, res) {
@@ -128,24 +129,35 @@ class RepartidorController {
  }
 
  async delete(req, res) {
-   try {
-     const id_usuario = req.params.id;
-     
-     const repartidor = await repartidorService.getRepartidorByUserId(id_usuario);
-     if (!repartidor) {
-       return res.status(404).json({ error: 'Repartidor no encontrado' });
-     }
+  try {
+    const id_usuario = req.params.id;
+    
+    const repartidor = await repartidorService.getRepartidorByUserId(id_usuario);
+    if (!repartidor) {
+      return res.status(404).json({ error: 'Repartidor no encontrado' });
+    }
+    
+    // Verificar si tiene pedidos asignados que no están completados (estado 3)
+    const pedidosActivos = await pedidoRepository.findPedidosActivosByRepartidor(repartidor.id_repartidor);
+    
+    if (pedidosActivos && pedidosActivos.length > 0) {
+      return res.status(400).json({ 
+        error: 'Repartidor con pedidos activos',
+        pedidos: pedidosActivos.length
+      });
+    }
 
-     await userService.softDelete(id_usuario);
-     await repartidorService.deleteRepartidor(repartidor.id_repartidor);
+    await userService.softDelete(id_usuario);
+    await repartidorService.deleteRepartidor(repartidor.id_repartidor);
 
-     res.json({ 
-       message: 'Repartidor y usuario desactivados correctamente'
-     });
-   } catch (error) {
-     res.status(500).json({ error: 'Error al desactivar repartidor' });
-   }
- }
+    res.json({ 
+      message: 'Repartidor y usuario desactivados correctamente'
+    });
+  } catch (error) {
+    console.error('Error al desactivar repartidor:', error);
+    res.status(500).json({ error: 'Error al desactivar repartidor' });
+  }
+}
 }
 
 module.exports = new RepartidorController();

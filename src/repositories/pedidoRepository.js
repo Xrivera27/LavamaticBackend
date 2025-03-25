@@ -190,6 +190,56 @@ class PedidoRepository {
       throw error;
     }
   }
+
+  // Nueva función para verificar si un repartidor tiene pedidos activos
+  async findPedidosActivosByRepartidor(id_repartidor) {
+    try {
+      // Buscar pedidos activos asignados a este repartidor
+      // Un pedido está activo si su estado NO es 3 (completado)
+      return await Pedido.findAll({
+        where: {
+          id_repartidor,
+          id_estado: {
+            [Op.ne]: 3  // No es igual a 3 (completado)
+          }
+        },
+        include: [
+          {
+            model: Estado,
+            as: 'estado'
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error al buscar pedidos activos por repartidor:', error);
+      throw error;
+    }
+  }
+
+  // Añadir en la clase PedidoRepository
+async findPedidosActivosByCliente(id_cliente) {
+  try {
+    // Buscar pedidos activos de este cliente (estados 1, 2 o 4)
+    return await Pedido.findAll({
+      where: {
+        id_cliente,
+        id_estado: {
+          [Op.in]: [1, 2, 4]  // Estados activos: pendiente, en proceso, o listo para recoger
+        }
+      },
+      include: [
+        {
+          model: Estado,
+          as: 'estado'
+        }
+      ]
+    });
+  } catch (error) {
+    console.error('Error al buscar pedidos activos por cliente:', error);
+    throw error;
+  }
+}
+
 }
 
 module.exports = new PedidoRepository();

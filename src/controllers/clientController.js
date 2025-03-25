@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const userService = require('../services/userService');
 const emailService = require('../services/emailService');
+const pedidoRepository = require('../repositories/pedidoRepository');
 
 class ClientController {
   async register(req, res) {
@@ -63,9 +64,20 @@ class ClientController {
   async delete(req, res) {
     try {
       const { id } = req.params;
+      
+      // Verificar si tiene pedidos activos
+      const pedidosActivos = await pedidoRepository.findPedidosActivosByCliente(id);
+      
+      if (pedidosActivos && pedidosActivos.length > 0) {
+        return res.status(400).json({ 
+          error: 'Cliente aun tiene pedidos activos' 
+        });
+      }
+      
       await userService.softDeleteUser(id);
       res.json({ message: 'Cliente desactivado' });
     } catch (error) {
+      console.error('Error al desactivar cliente:', error);
       res.status(500).json({ error: 'Error al desactivar' });
     }
   }
