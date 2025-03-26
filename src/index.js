@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "*", // Permite conexiones desde cualquier origen (para desarrollo)
+    origin: ["https://lavamatic.netlify.app"], // Reemplaza el "*" con tu dominio específico
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Authorization", "Content-Type"]
@@ -18,10 +18,11 @@ const io = socketIo(server, {
 
 // Middleware global
 app.use(cors({
-  origin: '*',
+  origin: 'https://lavamatic.netlify.app', // Reemplaza '*' con tu dominio específico
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 app.use('/api', routes);
 
