@@ -1,78 +1,54 @@
-
 const express = require('express');
 const router = express.Router();
 
-//clientes
-
+// clientes
 const clientsRoutes = require('./clients.routes');
-
 // login
 const authRoutes = require('./auth.routes');
-
-//repartidores
+// repartidores
 const repartidorRoutes = require('./repartidor.routes');
-
-//configuraciones Usuario
+// configuraciones Usuario
 const configUsuarioRoutes = require('./configUsuario.routes');
-
-//Equipos
+// Equipos
 const equipoRoutes = require('./equipo.routes');
-
-//Servicios
+// Servicios
 const servicioRoutes = require('./servicio.routes');
-
-//Mantenimientos
+// Mantenimientos
 const mantenimientoEquipoRoutes = require('./mantenimientoEquipo.routes');
-
-//Asignacion de pedidos 
+// Asignacion de pedidos
 const pedidoRoutes = require('./pedido.routes');
-
-
-//Clientes Pedidos
+// Clientes Pedidos
 const servicioClienteRoutes = require('./servicioCliente.routes');
-
-//repartidores
+// repartidores
 const repartidores = require('./repartidores.routes');
-
-//Dashboard
+// Dashboard
 const dashboardRoutes = require('./dashboard.routes');
+// Reporte
+const reportesRoutes = require('./reportes.routes');
 
-
-
-
-//clientes
+// clientes
 router.use('/clients', clientsRoutes);
-
 // login
 router.use('/auth', authRoutes);
-
-//repartidores
+// repartidores
 router.use('/repartidores', repartidorRoutes);
-
-//configuraciones Usuario
+// configuraciones Usuario
 router.use('/config', configUsuarioRoutes);
-
-//Equipos
+// Equipos
 router.use('/equipos', equipoRoutes);
-
-//Servicios
+// Servicios
 router.use('/servicios', servicioRoutes);
-
-//Mantenimientos
+// Mantenimientos
 router.use('/mantenimientos', mantenimientoEquipoRoutes);
-
-//Asignacion de pedidos
+// Asignacion de pedidos
 router.use('/pedidos', pedidoRoutes);
-
-//Clientes Pedidos
+// Clientes Pedidos
 router.use('/cliente', servicioClienteRoutes);
-
-//repartidores
+// repartidores
 router.use('/repartidor', repartidores);
-
-//Dashboard
+// Dashboard
 router.use('/dashboard', dashboardRoutes);
-
-
+// Reporte
+router.use('/reportes', reportesRoutes);
 
 module.exports = router;
