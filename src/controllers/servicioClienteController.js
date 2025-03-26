@@ -97,97 +97,129 @@ class ServicioClienteController {
     }
   }
 
-  /**
-   * Crear un nuevo pedido
-   * @route POST /api/pedidos
-   */
-  async crearPedido(req, res) {
-    try {
-      const {
-        servicios,
-        fecha,
-        id_horario, 
-        direccion_recogida,
-        direccion_entrega
-      } = req.body;
-   
-      // Validaciones
-      if (!servicios || servicios.length === 0) {
-        return res.status(400).json({ error: 'Debe incluir al menos un servicio' });
-      }
-   
-      // Validar que cada servicio tenga id_servicio y cantidad
-      const serviciosValidos = servicios.every(
-        servicio => servicio.id_servicio && servicio.cantidad > 0
-      );
-      if (!serviciosValidos) {
-        return res.status(400).json({ error: 'Servicios inválidos' });
-      }
-   
-      if (!fecha || !id_horario) {
-        return res.status(400).json({ error: 'Fecha y horario son requeridos' });
-      }
-   
-      if (!direccion_recogida || !direccion_entrega) {
-        return res.status(400).json({ error: 'Direcciones son requeridas' });
-      }
-   
-      // Obtener detalles de los servicios con sus nombres
-      const serviciosConNombre = await Promise.all(
-        servicios.map(async (servicio) => {
-          const servicioDetalle = await servicioClienteService.getServicioById(servicio.id_servicio);
-          return {
-            id_servicio: servicio.id_servicio,
-            nombre: servicioDetalle.nombre,
-            cantidad: servicio.cantidad
-          };
-        })
-      );
-
-      // Crear el pedido
-      const pedido = await pedidoClienteService.crearPedido({
-        id_cliente: req.user.id,
-        servicios,
-        fecha,
-        id_horario,
-        direccion_recogida,
-        direccion_entrega
-      });
-   
-      // Obtener información del cliente para el correo
-      const cliente = await userService.getUserById(req.user.id);
-
-      // Obtener información del horario
-      const horario = await servicioClienteService.getHorarioById(id_horario);
+ /**
+ * Crear un nuevo pedido
+ * @route POST /api/pedidos
+ */
+async crearPedido(req, res) {
+  try {
+    const {
+      servicios,
+      fecha,
+      id_horario, 
+      direccion_recogida,
+      direccion_entrega
+    } = req.body;
  
-      // Preparar detalles para el correo
-     // Preparar detalles para el correo
-const pedidoDetalles = {
-  id: pedido.id_pedido, // Cambio aquí para usar id_pedido
-  nombreCliente: cliente.nombre,
-  fecha: fecha,
-  horario: `${horario.hora_inicio} - ${horario.hora_fin}`,
-  servicios: serviciosConNombre,
-  direccionRecogida: direccion_recogida,
-  direccionEntrega: direccion_entrega
-};
- 
-      // Enviar correo de confirmación (en segundo plano)
-      try {
-        await emailService.sendPedidoConfirmation(cliente.email, pedidoDetalles);
-      } catch (emailError) {
-        console.error('Error al enviar correo de confirmación de pedido:', emailError);
-      }
-   
-      res.status(201).json({
-        message: 'Pedido creado exitosamente',
-        pedido
-      });
-    } catch (error) {
-      console.error('Error al crear pedido:', error);
-      res.status(500).json({ error: 'Error al crear pedido' });
+    // Validaciones
+    if (!servicios || servicios.length === 0) {
+      return res.status(400).json({ error: 'Debe incluir al menos un servicio' });
     }
+ 
+    // Validar que cada servicio tenga id_servicio y cantidad
+    const serviciosValidos = servicios.every(
+      servicio => servicio.id_servicio && servicio.cantidad > 0
+    );
+    if (!serviciosValidos) {
+      return res.status(400).json({ error: 'Servicios inválidos' });
+    }
+ 
+    if (!fecha || !id_horario) {
+      return res.status(400).json({ error: 'Fecha y horario son requeridos' });
+    }
+ 
+    if (!direccion_recogida || !direccion_entrega) {
+      return res.status(400).json({ error: 'Direcciones son requeridas' });
+    }
+ 
+    // Obtener detalles de los servicios con sus nombres
+    const serviciosConNombre = await Promise.all(
+      servicios.map(async (servicio) => {
+        const servicioDetalle = await servicioClienteService.getServicioById(servicio.id_servicio);
+        return {
+          id_servicio: servicio.id_servicio,
+          nombre: servicioDetalle.nombre,
+          cantidad: servicio.cantidad
+        };
+      })
+    );
+
+    // Crear el pedido
+    const pedido = await pedidoClienteService.crearPedido({
+      id_cliente: req.user.id,
+      servicios,
+      fecha,
+      id_horario,
+      direccion_recogida,
+      direccion_entrega
+    });
+ 
+    // Obtener información del cliente para el correo
+    const cliente = await userService.getUserById(req.user.id);
+
+    // Obtener información del horario
+    const horario = await servicioClienteService.getHorarioById(id_horario);
+
+    // Preparar detalles para el correo
+    const pedidoDetalles = {
+      id: pedido.id_pedido,
+      nombreCliente: cliente.nombre,
+      fecha: fecha,
+      horario: `${horario.hora_inicio} - ${horario.hora_fin}`,
+      servicios: serviciosConNombre,
+      direccionRecogida: direccion_recogida,
+      direccionEntrega: direccion_entrega
+    };
+ 
+    // Enviar correo de confirmación (en segundo plano)
+    try {
+      await emailService.sendPedidoConfirmation(cliente.email, pedidoDetalles);
+    } catch (emailError) {
+      console.error('Error al enviar correo de confirmación de pedido:', emailError);
+    }
+    
+    // INICIO - NOTIFICACIÓN POR WEBSOCKET
+    try {
+      // Obtener la instancia de io desde la aplicación
+      const io = req.app.get('io');
+      
+      if (io) {
+        // IMPORTANTE: Las propiedades deben coincidir con lo que espera el frontend
+        const notificacionPedido = {
+          id: pedido.id_pedido,
+          cliente: cliente.nombre,
+          servicios: serviciosConNombre.map(s => s.nombre).join(', '),
+          total: pedido.total || 0,
+          fecha: fecha,
+          direccionRecogida: direccion_recogida,
+          direccionEntrega: direccion_entrega,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Imprimir el objeto completo para depuración
+        console.log('Emitiendo evento nuevo-pedido con datos:', JSON.stringify(notificacionPedido));
+        
+        // Emitir el evento a todos los administradores conectados
+        io.to('admins').emit('nuevo-pedido', notificacionPedido);
+        console.log('Evento WebSocket: nuevo-pedido emitido');
+      } else {
+        console.warn('No se encontró la instancia de Socket.io');
+      }
+    } catch (wsError) {
+      console.error('Error al emitir evento WebSocket:', wsError);
+    }
+    // FIN - NOTIFICACIÓN POR WEBSOCKET
+ 
+    res.status(201).json({
+      message: 'Pedido creado exitosamente',
+      pedido
+    });
+  } catch (error) {
+    console.error('Error al crear pedido:', error);
+    res.status(500).json({ error: 'Error al crear pedido' });
   }
+}
+
   /**
    * Obtener historial de pedidos del cliente
    * @route GET /api/pedidos
