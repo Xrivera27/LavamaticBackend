@@ -8,7 +8,7 @@ const Repartidor = require('../models/repartidores');
 const Usuario = require('../models/User');
 const Equipo = require('../models/equipos');
 const MantenimientoEquipo = require('../models/mantenimientoEquipo');
-const ReservaEquipo = require('../models/ReservaEquipo');
+const ReservaEquipo = require('../models/reservaEquipo');
 const Horario = require('../models/horarios');
 const { Op, QueryTypes } = require('sequelize');
 
